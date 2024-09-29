@@ -1,10 +1,10 @@
-package com.neura_news.backend;
+package com.neuranews.backend;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class NeuraNewsBackendApplicationTests {
+class BackendApplicationTests {
 
 	@Test
 	void contextLoads() {
