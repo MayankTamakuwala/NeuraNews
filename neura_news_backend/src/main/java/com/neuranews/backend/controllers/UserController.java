@@ -23,6 +23,12 @@ public class UserController {
         this.userService = userService;
     }
 
+    @GetMapping("/")
+    @ResponseBody
+    public ResponseData server() {
+        return new ResponseData("NeuraNews Spring Boot Server!");
+    }
+
     @GetMapping("/users")
     @ResponseBody
     public ResponseData getAllUsers() {

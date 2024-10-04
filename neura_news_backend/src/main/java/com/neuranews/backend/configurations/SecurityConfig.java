@@ -1,5 +1,6 @@
 package com.neuranews.backend.configurations;
 
+import com.neuranews.backend.filters.JWTFilter;
 import com.neuranews.backend.services.NeuraNewsUserDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -14,16 +15,19 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
     private final NeuraNewsUserDetailService userDetailService;
+    private final JWTFilter jwtFilter;
 
     @Autowired
-    public SecurityConfig(NeuraNewsUserDetailService userDetailService) {
+    public SecurityConfig(NeuraNewsUserDetailService userDetailService, JWTFilter jwtFilter) {
         this.userDetailService = userDetailService;
+        this.jwtFilter = jwtFilter;
     }
 
     @Bean
@@ -39,6 +43,7 @@ public class SecurityConfig {
                 )
                 .httpBasic(Customizer.withDefaults())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 
