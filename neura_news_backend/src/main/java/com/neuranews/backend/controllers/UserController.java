@@ -30,8 +30,13 @@ public class UserController {
     }
 
     @PostMapping("/signup")
-    public void signup(@RequestBody User user) {
-        userService.signup(user);
+    public void signup(@RequestBody User user) throws Exception {
+        try {
+            userService.signup(user);
+        } catch (Exception e) {
+            throw new Exception(e.getMessage());
+        }
+
     }
 
     @PostMapping("/login")

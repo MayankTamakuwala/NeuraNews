@@ -26,7 +26,11 @@ public class UserService {
         this.jwtService = jwtService;
     }
 
-    public void signup(User user) {
+    public void signup(User user) throws Exception {
+        User oldUser = userRepo.findByEmail(user.getEmail());
+        if(oldUser != null) {
+            throw new Exception("User already exists");
+        }
         user.setPassword(encoder.encode(user.getPassword()));
         userRepo.save(user);
     }
