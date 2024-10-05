@@ -42,17 +42,20 @@ public class UserService {
         return userRepo.findAll();
     }
 
-
     public Map<String, String> login(User user) {
         Authentication auth =  authManager.authenticate(new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword()));
         if (auth.isAuthenticated()) {
             System.out.println("Logged in as " + auth.getName());
-            return Map.of("jwt", jwtService.generateToken(user), "refresh_token", jwtService.generateRefreshToken(user));
+
+            String refreshToken = jwtService.generateRefreshToken(user);
+            this.updateUserRefreshToken(user,refreshToken);
+
+            return Map.of("jwt", jwtService.generateToken(user), "refresh_token", refreshToken);
         }
         return null;
     }
 
-    public User getUserByToken(String token) throws Exception {
+    public User getUserByRefreshToken(String token) throws Exception {
         User user = userRepo.findByRefreshToken(token);
 
         if(user == null) {
@@ -65,6 +68,10 @@ public class UserService {
 
         return user;
     }
+
+    public void updateUserRefreshToken(User user, String refreshToken) {
+        User userDoc = userRepo.findByEmail(user.getEmail());
+        userDoc.setRefreshToken(refreshToken);
+        userRepo.save(userDoc);
+    }
 }
-
-

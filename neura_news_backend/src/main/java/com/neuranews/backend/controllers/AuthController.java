@@ -7,16 +7,15 @@ import com.neuranews.backend.models.User;
 import com.neuranews.backend.services.JWTService;
 import com.neuranews.backend.services.UserService;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.RequestEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -25,8 +24,8 @@ public class AuthController {
 
     private final Logger LOG = LoggerFactory.getLogger(getClass());
 
-    private UserService userService;
-    private JWTService jwtService;
+    private final UserService userService;
+    private final JWTService jwtService;
 
     @Autowired
     public AuthController(UserService userService, JWTService jwtService) {
@@ -35,11 +34,11 @@ public class AuthController {
     }
 
     @GetMapping("/refresh")
-    public ResponseObject refresh(@RequestBody RequestEntity<?> request, HttpServletResponse response) {
-        List<String> authHeader = request.getHeaders().get("Authorization");
+    public ResponseObject refresh(HttpServletRequest request, HttpServletResponse response) {
+        String authHeader = request.getHeader("Authorization");
         User user;
 
-        String token = authHeader.size() > 0 ? authHeader.get(0).substring(7) : null;
+        String token = authHeader != null ? authHeader.substring(7) : null;
 
         if (token == null) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -47,7 +46,7 @@ public class AuthController {
         }
 
         try {
-            user = userService.getUserByToken(token);
+            user = userService.getUserByRefreshToken(token);
         } catch (UsernameNotFoundException e) {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return new ResponseError(e.getMessage());
@@ -68,7 +67,10 @@ public class AuthController {
         long twelveHoursInMillis = 12 * 60 * 60 * 1000;
 
         if (remainingTime < twelveHoursInMillis) {
-            Cookie refreshCookie = new Cookie("refresh_token", jwtService.generateRefreshToken(user));
+            String refreshToken = jwtService.generateRefreshToken(user);
+            userService.updateUserRefreshToken(user, refreshToken);
+
+            Cookie refreshCookie = new Cookie("refresh_token", refreshToken);
             refreshCookie.setHttpOnly(true);
             refreshCookie.setSecure(true);
             refreshCookie.setPath("/");
@@ -108,10 +110,30 @@ public class AuthController {
     public ResponseObject signup(@RequestBody User user, HttpServletResponse response) throws Exception {
         try {
             userService.signup(user);
-            return new ResponseData("Sign Up Successfull");
+            return new ResponseData("Sign Up Successful");
         } catch (Exception e) {
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             return new ResponseError(e.getMessage());
         }
+    }
+
+    @GetMapping("/logout")
+    @ResponseBody
+    public ResponseObject logout(HttpServletRequest request, HttpServletResponse response) {
+        String authHeader = request.getHeader("Authorization");
+        String token = authHeader != null ? authHeader.substring(7) : null;
+
+        if (token == null) {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            return new ResponseError("Refresh token not provided");
+        }
+
+        String email = jwtService.extractEmail(token);
+
+        User user = new User();
+        user.setEmail(email);
+        userService.updateUserRefreshToken(user, null);
+
+        return new ResponseData("Logout Successful");
     }
 }
