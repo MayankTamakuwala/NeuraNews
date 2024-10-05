@@ -73,7 +73,7 @@ public class JWTService {
         return claims.get("email", String.class);
     }
 
-    private Date extractExpiration(String token) {
+    public Date extractExpiration(String token) {
         Claims claims = extractAllClaims(token);
         return claims.getExpiration();
     }
@@ -85,6 +85,14 @@ public class JWTService {
         return (
                 email.equals(userDetails.getUsername()) && // Step 1
                         !extractExpiration(token).before(new Date()) // Step 2
+        );
+    }
+
+    public boolean validateToken(String token, User user) {
+        final String email = extractEmail(token);
+        return (
+                email.equals(user.getEmail()) &&
+                        !extractExpiration(token).before(new Date())
         );
     }
 
