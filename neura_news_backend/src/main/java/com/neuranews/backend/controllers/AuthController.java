@@ -1,3 +1,4 @@
+// AuthController.java
 package com.neuranews.backend.controllers;
 
 import com.neuranews.backend.models.ResponseData;
@@ -56,8 +57,8 @@ public class AuthController {
         }
 
         Cookie cookie = new Cookie("jwt",jwtService.generateToken(user));
-        cookie.setHttpOnly(true);
-        cookie.setSecure(true);
+//        cookie.setHttpOnly(true);
+//        cookie.setSecure(true);
         cookie.setPath("/");
         cookie.setMaxAge(10 * 60 * 60);
         response.addCookie(cookie);
@@ -71,8 +72,8 @@ public class AuthController {
             userService.updateUserRefreshToken(user, refreshToken);
 
             Cookie refreshCookie = new Cookie("refresh_token", refreshToken);
-            refreshCookie.setHttpOnly(true);
-            refreshCookie.setSecure(true);
+//            refreshCookie.setHttpOnly(true);
+//            refreshCookie.setSecure(true);
             refreshCookie.setPath("/");
             refreshCookie.setMaxAge(7 * 24 * 60 * 60);
             response.addCookie(refreshCookie);
@@ -89,15 +90,15 @@ public class AuthController {
         Map<String, String> tokens = userService.login(user);
 
         Cookie cookie = new Cookie("jwt",tokens.get("jwt"));
-        cookie.setHttpOnly(true);
-        cookie.setSecure(true);
+//        cookie.setHttpOnly(true);
+//        cookie.setSecure(true);
         cookie.setPath("/");
         cookie.setMaxAge(10 * 60 * 60);
         response.addCookie(cookie);
 
         Cookie refreshCookie = new Cookie("refresh_token", tokens.get("refresh_token"));
-        refreshCookie.setHttpOnly(true);
-        refreshCookie.setSecure(true);
+//        cookie.setHttpOnly(true);
+//        cookie.setSecure(true);
         refreshCookie.setPath("/");
         refreshCookie.setMaxAge(7 * 24 * 60 * 60);
         response.addCookie(refreshCookie);
