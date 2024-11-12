@@ -90,15 +90,15 @@ public class AuthController {
         Map<String, String> tokens = userService.login(user);
 
         Cookie cookie = new Cookie("jwt",tokens.get("jwt"));
-//        cookie.setHttpOnly(true);
-//        cookie.setSecure(true);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
         cookie.setPath("/");
         cookie.setMaxAge(10 * 60 * 60);
         response.addCookie(cookie);
 
         Cookie refreshCookie = new Cookie("refresh_token", tokens.get("refresh_token"));
-//        cookie.setHttpOnly(true);
-//        cookie.setSecure(true);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
         refreshCookie.setPath("/");
         refreshCookie.setMaxAge(7 * 24 * 60 * 60);
         response.addCookie(refreshCookie);
