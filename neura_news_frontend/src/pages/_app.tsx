@@ -1,45 +1,6 @@
 import "@/styles/globals.css";
 import { AppProps } from "next/app";
-import axios from "axios";
-
 import Head from "next/head";
-
-axios.defaults.withCredentials = true;
-
-axios.interceptors.request.use(
-  function (config) {
-    // Do something before request is sent
-    if (
-      config.url == "http://localhost:8080/api/auth/login" ||
-      config.url == "http://localhost:8080/api/auth/signup"
-    ) {
-      return config;
-    }
-
-    return config;
-  },
-  function (error) {
-    return Promise.reject(error);
-  }
-);
-
-axios.interceptors.response.use(
-  function (response) {
-    // Do something before request is sent
-    //   if (config.url == "http://localhost:8080/api/auth/login" || config.url == "http://localhost:8080/api/auth/signup"){
-    //       return config
-    //   }
-    const setCookieHeader = response.headers;
-
-    console.log(setCookieHeader);
-    // console.log(response.headers["jwt"]);
-
-    return response;
-  },
-  function (error) {
-    return Promise.reject(error);
-  }
-);
 
 export default function App({ Component, pageProps }: AppProps) {
   return (

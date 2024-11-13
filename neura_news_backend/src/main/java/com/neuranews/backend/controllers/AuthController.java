@@ -89,21 +89,21 @@ public class AuthController {
         LOG.info("Login Hit.");
         Map<String, String> tokens = userService.login(user);
 
-        Cookie cookie = new Cookie("jwt",tokens.get("jwt"));
-        cookie.setHttpOnly(true);
-        cookie.setSecure(true);
-        cookie.setPath("/");
-        cookie.setMaxAge(10 * 60 * 60);
-        response.addCookie(cookie);
+//        Cookie cookie = new Cookie("jwt",tokens.get("jwt"));
+//        cookie.setHttpOnly(true);
+////        cookie.setSecure(true);
+//        cookie.setPath("/");
+//        cookie.setMaxAge(10 * 60 * 60);
+//        response.addCookie(cookie);
+//
+//        Cookie refreshCookie = new Cookie("refresh_token", tokens.get("refresh_token"));
+//        refreshCookie.setHttpOnly(true);
+////        refreshCookie.setSecure(true);
+//        refreshCookie.setPath("/");
+//        refreshCookie.setMaxAge(7 * 24 * 60 * 60);
+//        response.addCookie(refreshCookie);
 
-        Cookie refreshCookie = new Cookie("refresh_token", tokens.get("refresh_token"));
-        cookie.setHttpOnly(true);
-        cookie.setSecure(true);
-        refreshCookie.setPath("/");
-        refreshCookie.setMaxAge(7 * 24 * 60 * 60);
-        response.addCookie(refreshCookie);
-
-        return new ResponseData("Login Successful");
+        return new ResponseData(Map.of("jwt", tokens.get("jwt"), "refresh_token", tokens.get("refresh_token")));
     }
 
     @PostMapping("/signup")
