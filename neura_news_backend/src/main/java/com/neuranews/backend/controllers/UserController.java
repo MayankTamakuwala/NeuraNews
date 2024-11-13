@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
-@RestController
+@RestController("/api")
 public class UserController {
 
     private final Logger LOG = LoggerFactory.getLogger(getClass());
