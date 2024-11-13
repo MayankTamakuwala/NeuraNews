@@ -85,25 +85,9 @@ public class AuthController {
 
     @PostMapping("/login")
     @ResponseBody
-    public ResponseObject loginUsers(@RequestBody User user, HttpServletResponse response) {
+    public ResponseObject loginUsers(@RequestBody User user) {
         LOG.info("Login Hit.");
-        Map<String, String> tokens = userService.login(user);
-
-//        Cookie cookie = new Cookie("jwt",tokens.get("jwt"));
-//        cookie.setHttpOnly(true);
-////        cookie.setSecure(true);
-//        cookie.setPath("/");
-//        cookie.setMaxAge(10 * 60 * 60);
-//        response.addCookie(cookie);
-//
-//        Cookie refreshCookie = new Cookie("refresh_token", tokens.get("refresh_token"));
-//        refreshCookie.setHttpOnly(true);
-////        refreshCookie.setSecure(true);
-//        refreshCookie.setPath("/");
-//        refreshCookie.setMaxAge(7 * 24 * 60 * 60);
-//        response.addCookie(refreshCookie);
-
-        return new ResponseData(Map.of("jwt", tokens.get("jwt"), "refresh_token", tokens.get("refresh_token")));
+        return new ResponseData(userService.login(user));
     }
 
     @PostMapping("/signup")

@@ -1,6 +1,7 @@
 package com.neuranews.backend.services;
 
 import com.neuranews.backend.models.User;
+import com.neuranews.backend.models.UserPrincipal;
 import com.neuranews.backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -44,13 +45,20 @@ public class UserService {
 
     public Map<String, String> login(User user) {
         Authentication auth =  authManager.authenticate(new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword()));
+        UserPrincipal principal = (UserPrincipal) auth.getPrincipal();
         if (auth.isAuthenticated()) {
-            System.out.println("Logged in as " + auth.getName());
-
+            User updatedUser = principal.getUser();
+            System.out.println("Logged in as " + updatedUser);
             String refreshToken = jwtService.generateRefreshToken(user);
             this.updateUserRefreshToken(user,refreshToken);
 
-            return Map.of("jwt", jwtService.generateToken(user), "refresh_token", refreshToken);
+            return Map.of(
+                    "jwt", jwtService.generateToken(user),
+                    "refresh_token", refreshToken,
+                    "email", user.getEmail(),
+                    "name", updatedUser.getName(),
+                    "id", updatedUser.getId()
+            );
         }
         return null;
     }
