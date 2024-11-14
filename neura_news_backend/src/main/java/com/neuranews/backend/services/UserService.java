@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -43,24 +44,32 @@ public class UserService {
         return userRepo.findAll();
     }
 
-    public Map<String, String> login(User user) {
-        Authentication auth =  authManager.authenticate(new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword()));
-        UserPrincipal principal = (UserPrincipal) auth.getPrincipal();
-        if (auth.isAuthenticated()) {
-            User updatedUser = principal.getUser();
-            System.out.println("Logged in as " + updatedUser);
-            String refreshToken = jwtService.generateRefreshToken(user);
-            this.updateUserRefreshToken(user,refreshToken);
+    public Map<String, String> login(User user) throws AuthenticationException {
+        try {
+            Authentication auth = authManager.authenticate(new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword()));
 
-            return Map.of(
-                    "jwt", jwtService.generateToken(user),
-                    "refresh_token", refreshToken,
-                    "email", user.getEmail(),
-                    "name", updatedUser.getName(),
-                    "id", updatedUser.getId()
-            );
+            UserPrincipal principal = (UserPrincipal) auth.getPrincipal();
+
+            System.out.println(principal.getUser());
+
+            if (auth.isAuthenticated()) {
+                User updatedUser = principal.getUser();
+                System.out.println("Logged in as " + auth.getPrincipal());
+                String refreshToken = jwtService.generateRefreshToken(user);
+                this.updateUserRefreshToken(user,refreshToken);
+
+                return Map.of(
+                        "jwt", jwtService.generateToken(user),
+                        "refresh_token", refreshToken,
+                        "email", user.getEmail(),
+                        "name", updatedUser.getName(),
+                        "id", updatedUser.getId()
+                );
+            }
+            return null;
+        } catch (AuthenticationException e) {
+            return null;
         }
-        return null;
     }
 
     public User getUserByRefreshToken(String token) throws Exception {

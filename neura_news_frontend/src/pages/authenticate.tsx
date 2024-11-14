@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Button } from "@/components/ui/button";
 import {
     Card,
@@ -12,35 +11,52 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useState } from "react";
-import axios from "axios";
-import axiosClient from "@/lib/axiosClient";
+import {axiosClient, isOk} from "@/lib/axiosClient";
+import { useAuth } from "@/context/AuthContext";
+import toast from "react-hot-toast";
+import { useRouter } from "next/router";
 
 export default function Authentication() {
     const [loading, setLoading] = useState(false);
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [name, setName] = useState("");
+    const {setUser} = useAuth()
+    const router = useRouter();
 
-    const handleLogin = async () => {
+    const handleLogin = async (e: any) => {
+        e.preventDefault();
         setLoading(true);
 
-        const temp2 = await axiosClient.post("/auth/login", 
-            {
-                email,
-                password,
-            },{
-                headers: {
-                    "Content-Type": "application/json",
-                }
-            }
-        );
+        const res = await axiosClient.post("/auth/login", {
+            email,
+            password,
+        });
 
+        if(isOk(res)){
+            toast.success("Login Successful")
+            setUser({
+                name: res.data.neuraData.name,
+                email: email,
+                refreshToken: res.data.neuraData.refresh_token,
+                id: res.data.neuraData.id,
+                token: res.data.neuraData.jwt
+            })
+            router.push("/")
+        }
+        
         setLoading(false);
     };
 
-    const handleSignUp = () => {
+    const handleSignUp = async (e: any) => {
+        e.preventDefault();
         setLoading(true);
-        // Sign Up Login
+
+        await axiosClient.post("/auth/signup", {
+            name: name,
+            email: email,
+            password: password,
+        }).then(()=>{toast.success("Account Created!")});
         setLoading(false);
     };
 
@@ -87,7 +103,7 @@ export default function Authentication() {
                             </div>
                         </CardContent>
                         <CardFooter>
-                            <Button type="button" disabled={loading} onClick={handleLogin}>
+                            <Button type="submit" disabled={loading}>
                                 {loading ? "Processing..." : "Login"}
                             </Button>
                         </CardFooter>
@@ -133,7 +149,7 @@ export default function Authentication() {
                             </div>
                         </CardContent>
                         <CardFooter>
-                            <Button type="button" disabled={loading}>
+                            <Button type="submit" disabled={loading}>
                                 {loading ? "Processing..." : "Sign Up"}
                             </Button>
                         </CardFooter>

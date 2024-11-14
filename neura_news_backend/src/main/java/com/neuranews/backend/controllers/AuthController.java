@@ -85,9 +85,14 @@ public class AuthController {
 
     @PostMapping("/login")
     @ResponseBody
-    public ResponseObject loginUsers(@RequestBody User user) {
+    public ResponseObject loginUsers(@RequestBody User user, HttpServletResponse response) {
         LOG.info("Login Hit.");
-        return new ResponseData(userService.login(user));
+        Map<String, String> u = userService.login(user);
+        if (u == null) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return new ResponseError("Invalid username or password");
+        }
+        return new ResponseData(u);
     }
 
     @PostMapping("/signup")

@@ -6,10 +6,10 @@ import lombok.Setter;
 @Setter
 @Getter
 public class ResponseData implements ResponseObject{
-    private Object data;
+    private Object neuraData;
 
     public ResponseData(Object data) {
-            this.data = data;
+            this.neuraData = data;
     }
 }
 
