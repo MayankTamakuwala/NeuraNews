@@ -23,8 +23,9 @@ axiosClient.interceptors.request.use(
 		if (config.url == "/auth/login" || config.url == "/auth/signup") {
 			return config;
 		}
-
-		config.withCredentials = true;
+		// config.withCredentials = true;
+		const token = Cookies.get("jwt");
+		config.headers.Authorization = `Bearer ${token}`
 		return config;
 	},
 	function (error) {

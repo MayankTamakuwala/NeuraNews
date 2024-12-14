@@ -25,6 +25,12 @@ public class NewsController {
         this.client = NewsAPI.newClientBuilder().setApiKey(apiKey).build();
     }
 
+    @GetMapping("/test")
+    @ResponseBody
+    public ResponseObject test() {
+        return new ResponseData("Mayank");
+    }
+
     @GetMapping("/news")
     @ResponseBody
     public ResponseObject getNews() throws IOException, InterruptedException {
